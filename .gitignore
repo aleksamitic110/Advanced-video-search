@@ -1,0 +1,7 @@
+backend/.venv/
+backend/data/
+backend/tools/
+**/__pycache__/
+*.pyc
+.env
+server*.log

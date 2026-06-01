@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>YT Video Search</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Local multimodal IR</p>
+          <h1>YT Search</h1>
+        </div>
+        <button id="openOptions" class="icon-button" title="Settings" type="button">Set</button>
+      </header>
+
+      <nav class="tabs" aria-label="Search modes">
+        <button class="tab active" data-tab="import" type="button">Videos</button>
+        <button class="tab" data-tab="text" type="button">Text</button>
+        <button class="tab" data-tab="image" type="button">Image</button>
+        <button class="tab" data-tab="hybrid" type="button">Hybrid</button>
+      </nav>
+
+      <section id="status" class="status">Checking backend...</section>
+
+      <section class="panel active" id="tab-import">
+        <label class="field">
+          <span>YouTube URLs</span>
+          <textarea id="videoUrls" rows="5" placeholder="https://www.youtube.com/watch?v=..."></textarea>
+        </label>
+        <button id="importVideos" class="primary" type="button">Import and index</button>
+        <div id="videoList" class="video-list"></div>
+      </section>
+
+      <section class="panel" id="tab-text">
+        <label class="field">
+          <span>Text query</span>
+          <input id="textQuery" type="search" placeholder="object, event, comment, transcript phrase">
+        </label>
+        <fieldset class="checks">
+          <label><input type="checkbox" value="title" checked> title</label>
+          <label><input type="checkbox" value="description" checked> description</label>
+          <label><input type="checkbox" value="comments" checked> comments</label>
+          <label><input type="checkbox" value="transcript" checked> transcript</label>
+        </fieldset>
+        <button id="textSearch" class="primary" type="button">Search text</button>
+      </section>
+
+      <section class="panel" id="tab-image">
+        <label class="file-drop">
+          <input id="imageQuery" type="file" accept="image/*">
+          <span>Choose image query</span>
+        </label>
+        <button id="imageSearch" class="primary" type="button">Search frames</button>
+      </section>
+
+      <section class="panel" id="tab-hybrid">
+        <label class="field">
+          <span>Hybrid query</span>
+          <input id="hybridQuery" type="search" placeholder="red car, lecture slide, dog on sofa">
+        </label>
+        <label class="file-drop compact">
+          <input id="hybridImage" type="file" accept="image/*">
+          <span>Optional image</span>
+        </label>
+        <div class="weights">
+          <label>BM25 <input id="textWeight" type="number" min="0" max="1" step="0.1" value="0.4"></label>
+          <label>Vector <input id="vectorWeight" type="number" min="0" max="1" step="0.1" value="0.6"></label>
+        </div>
+        <button id="hybridSearch" class="primary" type="button">Search hybrid</button>
+      </section>
+
+      <section class="results">
+        <div class="results-title">
+          <h2>Results</h2>
+          <button id="refreshVideos" class="ghost" type="button">Refresh</button>
+        </div>
+        <div id="results"></div>
+      </section>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>

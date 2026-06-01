@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>YT Search Options</title>
+    <link rel="stylesheet" href="options.css">
+  </head>
+  <body>
+    <main class="options-shell">
+      <section class="mast">
+        <p class="eyebrow">Configuration</p>
+        <h1>YT Video Search</h1>
+        <p>Connect the extension to the local FastAPI backend and configure ingestion settings.</p>
+      </section>
+
+      <form id="optionsForm" class="settings-card">
+        <label>
+          <span>Backend URL</span>
+          <input id="backendUrl" type="url" placeholder="http://localhost:8000" required>
+        </label>
+
+        <label>
+          <span>YouTube API key</span>
+          <input id="youtubeApiKey" type="password" placeholder="Used for metadata and comments">
+        </label>
+
+        <label>
+          <span>Frame interval seconds</span>
+          <input id="frameInterval" type="number" min="1" max="120" step="1" value="8">
+        </label>
+
+        <label class="toggle">
+          <input id="enableYtdlp" type="checkbox">
+          <span>Enable yt-dlp + ffmpeg frame extraction</span>
+        </label>
+
+        <button type="submit">Save settings</button>
+        <p id="message" class="message"></p>
+      </form>
+    </main>
+    <script src="options.js"></script>
+  </body>
+</html>
