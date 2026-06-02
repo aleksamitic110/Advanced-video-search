@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Advanced Video Search</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="layout">
+      <aside class="sidebar">
+        <div class="brand">
+          <p class="eyebrow">Multimodal IR</p>
+          <h1>Advanced Video Search</h1>
+        </div>
+
+        <section class="panel">
+          <div class="section-title">
+            <h2>Backend</h2>
+            <span id="healthBadge" class="badge">checking</span>
+          </div>
+          <label class="field">
+            <span>Backend URL</span>
+            <input id="backendUrl" type="url" value="http://127.0.0.1:8000">
+          </label>
+          <label class="field">
+            <span>YouTube API key</span>
+            <input id="youtubeApiKey" type="password" placeholder="Saved in backend config">
+          </label>
+          <div class="grid-2">
+            <label class="field">
+              <span>Frame interval</span>
+              <input id="frameInterval" type="number" min="1" max="120" value="8">
+            </label>
+            <label class="toggle">
+              <input id="enableYtdlp" type="checkbox" checked>
+              <span>Frames</span>
+            </label>
+          </div>
+          <button id="saveConfig" class="primary" type="button">Save config</button>
+        </section>
+
+        <section class="panel">
+          <h2>Import Videos</h2>
+          <label class="field">
+            <span>YouTube URLs</span>
+            <textarea id="videoUrls" rows="6" placeholder="https://www.youtube.com/watch?v=..."></textarea>
+          </label>
+          <button id="importVideos" class="primary" type="button">Import and index</button>
+        </section>
+      </aside>
+
+      <section class="content">
+        <nav class="tabs" aria-label="Search modes">
+          <button class="tab active" data-tab="text" type="button">Text</button>
+          <button class="tab" data-tab="image" type="button">Image</button>
+          <button class="tab" data-tab="hybrid" type="button">Hybrid</button>
+          <button class="tab" data-tab="videos" type="button">Videos</button>
+        </nav>
+
+        <section id="status" class="status">Starting...</section>
+
+        <section class="workspace active" id="tab-text">
+          <div class="tool-strip">
+            <label class="field grow">
+              <span>Text query</span>
+              <input id="textQuery" type="search" placeholder="comment phrase, object, transcript term">
+            </label>
+            <button id="textSearch" class="primary action" type="button">Search text</button>
+          </div>
+          <fieldset class="checks">
+            <label><input type="checkbox" value="title" checked> title</label>
+            <label><input type="checkbox" value="description" checked> description</label>
+            <label><input type="checkbox" value="comments" checked> comments</label>
+            <label><input type="checkbox" value="transcript" checked> transcript</label>
+          </fieldset>
+        </section>
+
+        <section class="workspace" id="tab-image">
+          <div class="tool-strip">
+            <label class="file-box grow">
+              <input id="imageQuery" type="file" accept="image/*">
+              <span>Choose image query</span>
+            </label>
+            <button id="imageSearch" class="primary action" type="button">Search frames</button>
+          </div>
+        </section>
+
+        <section class="workspace" id="tab-hybrid">
+          <div class="tool-strip">
+            <label class="field grow">
+              <span>Hybrid text</span>
+              <input id="hybridQuery" type="search" placeholder="red jacket, product shot, mountain scene">
+            </label>
+            <label class="file-box compact">
+              <input id="hybridImage" type="file" accept="image/*">
+              <span>Optional image</span>
+            </label>
+          </div>
+          <div class="tool-strip">
+            <label class="field">
+              <span>BM25 weight</span>
+              <input id="textWeight" type="number" min="0" max="1" step="0.1" value="0.4">
+            </label>
+            <label class="field">
+              <span>Vector weight</span>
+              <input id="vectorWeight" type="number" min="0" max="1" step="0.1" value="0.6">
+            </label>
+            <button id="hybridSearch" class="primary action" type="button">Search hybrid</button>
+          </div>
+        </section>
+
+        <section class="workspace" id="tab-videos">
+          <div class="section-title">
+            <h2>Indexed Videos</h2>
+            <button id="refreshVideos" class="ghost" type="button">Refresh</button>
+          </div>
+          <div id="videoList" class="video-list"></div>
+        </section>
+
+        <section class="results-panel">
+          <div class="section-title">
+            <h2>Results</h2>
+            <span id="resultCount" class="badge">0</span>
+          </div>
+          <div id="results" class="results-grid"></div>
+        </section>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

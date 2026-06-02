@@ -8,6 +8,8 @@ This project is a Brave/Chrome extension plus local FastAPI backend for a facult
 - image/frame similarity search over extracted video frames
 - hybrid text + image search
 - direct YouTube timestamp links
+- a standalone web client at `client/` in addition to the browser extension
+- Docker Compose startup for backend, web client, and static extension files
 
 The project lives in:
 
@@ -36,10 +38,19 @@ backend/
     setup_tools.ps1         downloads yt-dlp.exe and FFmpeg into backend/tools
     start_backend.ps1       creates venv, installs deps, starts uvicorn
   requirements.txt
+client/
+  index.html                standalone browser web client
+  app.js                    API calls and UI behavior
+  styles.css                web UI styling
+  Dockerfile                Nginx static hosting
 extension/
   manifest.json             Manifest V3 extension
   popup.*                   import/search UI
   options.*                 backend URL, API key, ytdlp/ffmpeg settings
+  Dockerfile                Nginx static hosting for extension files
+docker-compose.yml          backend/client/extension-static services
+start.ps1                   Docker Compose startup for Windows
+start.sh                    Docker Compose startup for bash environments
 Plan.md                     original implementation plan
 README.md                   setup and usage
 ```
@@ -57,7 +68,9 @@ Do not commit API keys, downloaded videos, extracted frames, SQLite data, virtua
 ## What Works
 
 - Backend starts at `http://127.0.0.1:8000`.
+- Docker Compose starts backend at `8000`, web client at `5173`, and extension static files at `5174`.
 - YouTube API key is saved once through extension options or `POST /api/config`.
+- Web client can also save backend config and perform all current search flows.
 - `yt-dlp.exe` and FFmpeg can be installed into `backend/tools` with `backend/scripts/setup_tools.ps1`.
 - Frame extraction works when `enable_ytdlp=true` and tools are available.
 - Delete video from extension history is implemented with `DELETE /api/videos/{video_id}`.
@@ -69,6 +82,7 @@ Do not commit API keys, downloaded videos, extracted frames, SQLite data, virtua
 - Transcripts are best-effort via `youtube-transcript-api`; many videos have no accessible transcript.
 - Frame extraction requires downloading the video with yt-dlp. Some videos may fail due to YouTube restrictions, age checks, or bot checks.
 - Current image search uses a lightweight RGB histogram/grid descriptor, not CLIP. This is acceptable as a functional fallback but should be upgraded for stronger neural-search grading.
+- Extension Docker service only serves extension files. Real Brave/Chrome usage still requires loading `extension/` unpacked in the browser.
 
 ## Suggested Next Work
 
@@ -81,7 +95,13 @@ Do not commit API keys, downloaded videos, extracted frames, SQLite data, virtua
 
 ## Run Commands
 
-First setup on a new laptop:
+Docker setup on a new laptop:
+
+```powershell
+.\start.ps1
+```
+
+Manual backend setup:
 
 ```powershell
 cd backend

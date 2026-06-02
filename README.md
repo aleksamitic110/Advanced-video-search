@@ -9,9 +9,29 @@ It indexes pasted YouTube links and supports:
 - hybrid text + image search
 - direct links that open YouTube at the matched timestamp
 
-## Quick Start On A New Laptop
+## Docker Quick Start On A New Laptop
 
 Clone the repo, then run:
+
+```powershell
+.\start.ps1
+```
+
+This starts:
+
+```text
+Backend:          http://127.0.0.1:8000
+Web client:       http://127.0.0.1:5173
+Extension files:  http://127.0.0.1:5174
+```
+
+The backend Docker image installs Python dependencies and FFmpeg. It uses the Python `yt-dlp` package from `requirements.txt`, so you do not need to install `yt-dlp` or FFmpeg manually for Docker.
+
+Optional: copy `.env.example` to `.env` and set `YOUTUBE_API_KEY` before starting Docker. You can also save the API key from the web client or extension options page.
+
+## Manual Backend Quick Start
+
+Use this if you do not want Docker:
 
 ```powershell
 cd backend
@@ -25,7 +45,19 @@ Backend runs at:
 http://127.0.0.1:8000
 ```
 
-Then open Brave or Chrome:
+## Web Client
+
+When Docker is running, open:
+
+```text
+http://127.0.0.1:5173
+```
+
+The web client supports importing videos, setting the API key, text/image/hybrid search, viewing indexed videos, and deleting indexed videos.
+
+## Browser Extension
+
+Open Brave or Chrome:
 
 ```text
 brave://extensions
@@ -39,9 +71,11 @@ chrome://extensions
 
 Enable Developer Mode, choose **Load unpacked**, and select the `extension/` folder.
 
+Docker also serves the extension files at `http://127.0.0.1:5174`, but browser extensions still need to be loaded from the local `extension/` folder in Developer Mode.
+
 ## Configuration
 
-The extension options page lets you set:
+The web client and extension options page let you set:
 
 - backend URL, default `http://127.0.0.1:8000`
 - YouTube API key
@@ -71,6 +105,8 @@ backend/tools/ffmpeg/bin/ffplay.exe
 ```
 
 These paths are ignored by git because FFmpeg binaries are too large for normal GitHub pushes.
+
+Docker does not use these Windows executables. Docker installs Linux FFmpeg inside the backend image.
 
 ## Important Demo Notes
 

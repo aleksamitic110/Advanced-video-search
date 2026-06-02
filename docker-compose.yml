@@ -1,0 +1,37 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: yt-video-search-backend
+    environment:
+      YOUTUBE_API_KEY: ${YOUTUBE_API_KEY:-}
+      DATA_DIR: /app/data
+      ENABLE_YTDLP: ${ENABLE_YTDLP:-true}
+      FRAME_INTERVAL_SECONDS: ${FRAME_INTERVAL_SECONDS:-8}
+      BACKEND_CORS_ORIGINS: "*"
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - backend-data:/app/data
+    restart: unless-stopped
+
+  client:
+    build:
+      context: ./client
+    container_name: yt-video-search-client
+    ports:
+      - "${CLIENT_PORT:-5173}:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  extension:
+    build:
+      context: ./extension
+    container_name: yt-video-search-extension-static
+    ports:
+      - "${EXTENSION_STATIC_PORT:-5174}:80"
+    restart: unless-stopped
+
+volumes:
+  backend-data:
