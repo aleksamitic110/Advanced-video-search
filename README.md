@@ -29,6 +29,8 @@ The backend Docker image installs Python dependencies and FFmpeg. It uses the Py
 
 Optional: copy `.env.example` to `.env` and set `YOUTUBE_API_KEY` before starting Docker. You can also save the API key from the web client or extension options page.
 
+Docker stores backend data and saved runtime config in its own `backend-data` volume. If you previously saved a YouTube API key while running the backend manually, save it again after starting Docker or put it in `.env`.
+
 ## Manual Backend Quick Start
 
 Use this if you do not want Docker:

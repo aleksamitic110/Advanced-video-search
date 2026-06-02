@@ -1,7 +1,8 @@
 const DEFAULT_BACKEND = "http://127.0.0.1:8000";
 
 const state = {
-  backendUrl: DEFAULT_BACKEND
+  backendUrl: DEFAULT_BACKEND,
+  apiKeyConfigured: false
 };
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -42,8 +43,13 @@ function bindActions() {
 async function checkBackend() {
   try {
     await apiGet("/api/health");
-    setStatus(`Backend connected: ${state.backendUrl}`);
+    const config = await apiGet("/api/config");
+    state.apiKeyConfigured = Boolean(config.youtube_api_key_configured);
+    setStatus(state.apiKeyConfigured
+      ? `Backend connected: ${state.backendUrl}`
+      : "Backend connected, but YouTube API key is not saved.");
   } catch (error) {
+    state.apiKeyConfigured = false;
     setStatus(`Backend unavailable at ${state.backendUrl}`, true);
   }
 }
@@ -64,6 +70,11 @@ async function importVideos() {
     .filter(Boolean);
   if (!urls.length) {
     setStatus("Paste at least one YouTube URL.", true);
+    return;
+  }
+  await checkBackend();
+  if (!state.apiKeyConfigured) {
+    setStatus("Save a YouTube API key in Options before importing videos.", true);
     return;
   }
   setStatus("Importing videos...");

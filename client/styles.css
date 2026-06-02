@@ -164,6 +164,29 @@ h2 {
   font-weight: 700;
 }
 
+.label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mini-state {
+  border: 1px solid rgba(35, 116, 86, 0.45);
+  border-radius: 999px;
+  padding: 1px 7px;
+  color: var(--green);
+  font-size: 12px;
+  line-height: 1.4;
+  background: rgba(35, 116, 86, 0.08);
+}
+
+.mini-state.missing {
+  border-color: rgba(209, 61, 47, 0.4);
+  color: var(--accent-dark);
+  background: rgba(209, 61, 47, 0.08);
+}
+
 .grow {
   flex: 1 1 auto;
 }

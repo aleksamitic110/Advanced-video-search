@@ -1,7 +1,8 @@
 const DEFAULT_BACKEND = "http://127.0.0.1:8000";
 
 const state = {
-  backendUrl: localStorage.getItem("backendUrl") || DEFAULT_BACKEND
+  backendUrl: localStorage.getItem("backendUrl") || DEFAULT_BACKEND,
+  apiKeyConfigured: false
 };
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -50,10 +51,14 @@ async function checkBackend() {
 async function loadBackendConfig() {
   try {
     const config = await apiGet("/api/config");
+    state.apiKeyConfigured = Boolean(config.youtube_api_key_configured);
+    renderApiKeyState();
     document.getElementById("frameInterval").value = config.frame_interval_seconds || 8;
     document.getElementById("enableYtdlp").checked = Boolean(config.enable_ytdlp);
   } catch {
     // Health status already reports backend availability.
+    state.apiKeyConfigured = false;
+    renderApiKeyState();
   }
 }
 
@@ -74,6 +79,7 @@ async function saveConfig() {
     await apiPostJson("/api/config", payload);
     document.getElementById("youtubeApiKey").value = "";
     await checkBackend();
+    await loadBackendConfig();
     setStatus("Configuration saved.");
   } catch (error) {
     setStatus(error.message, true);
@@ -98,6 +104,11 @@ async function importVideos() {
     setStatus("Paste at least one YouTube URL.", true);
     return;
   }
+  await loadBackendConfig();
+  if (!state.apiKeyConfigured) {
+    setStatus("Save a YouTube API key first. Without it the backend can only index fallback title text and frames.", true);
+    return;
+  }
   setStatus("Importing videos. This can take time when frames are enabled...");
   try {
     const data = await apiPostJson("/api/videos/import", { urls });
@@ -114,6 +125,15 @@ async function importVideos() {
   } catch (error) {
     setStatus(error.message, true);
   }
+}
+
+function renderApiKeyState() {
+  const badge = document.getElementById("apiKeyState");
+  if (!badge) {
+    return;
+  }
+  badge.textContent = state.apiKeyConfigured ? "saved" : "not saved";
+  badge.classList.toggle("missing", !state.apiKeyConfigured);
 }
 
 async function textSearch() {
