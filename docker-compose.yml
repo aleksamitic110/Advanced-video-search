@@ -34,6 +34,21 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      embedding-service:
+        condition: service_started
+    restart: unless-stopped
+
+  embedding-service:
+    build:
+      context: ./embedding-service
+    container_name: yt-video-search-embedding-service
+    environment:
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-clip-ViT-B-32}
+      HF_HOME: /models/huggingface
+    ports:
+      - "${EMBEDDING_SERVICE_PORT:-8081}:8081"
+    volumes:
+      - embedding-cache:/models
     restart: unless-stopped
 
   client:
@@ -57,3 +72,4 @@ services:
 volumes:
   backend-data:
   postgres-data:
+  embedding-cache:

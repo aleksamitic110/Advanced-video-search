@@ -29,7 +29,10 @@ CREATE TABLE IF NOT EXISTS frames (
     video_id TEXT NOT NULL REFERENCES videos(video_id) ON DELETE CASCADE,
     timestamp_seconds INTEGER NOT NULL,
     frame_path TEXT NOT NULL,
+    embedding vector(512),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+ALTER TABLE frames ADD COLUMN IF NOT EXISTS embedding vector(512);
 CREATE INDEX IF NOT EXISTS idx_frames_video_id ON frames(video_id);
+CREATE INDEX IF NOT EXISTS idx_frames_embedding ON frames USING hnsw (embedding vector_cosine_ops);

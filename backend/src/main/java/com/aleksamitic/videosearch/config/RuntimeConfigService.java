@@ -29,6 +29,10 @@ public class RuntimeConfigService {
         return appProperties.getDataDir();
     }
 
+    public String embeddingServiceUrl() {
+        return appProperties.getEmbeddingServiceUrl();
+    }
+
     public void updateYoutubeApiKey(String value) {
         write("youtube_api_key", value.trim());
     }

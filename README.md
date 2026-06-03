@@ -2,12 +2,12 @@
 
 Faculty Information Retrieval project for searching indexed YouTube videos from a web client and Brave/Chrome extension.
 
-The backend is being rewritten as a Java/Spring Boot service. The target architecture is:
+The backend is a Java/Spring Boot service. The architecture is:
 
 - Spring Boot backend for REST API and orchestration
-- PostgreSQL in Docker for video history, config, frame metadata, and later pgvector
+- PostgreSQL + pgvector in Docker for video history, config, frame metadata, and image vectors
 - Apache Lucene in the Java backend for text indexing/search
-- separate embedding service later for CLIP/OpenCLIP image embeddings
+- separate Python embedding service for CLIP image embeddings
 - static web client in `client/`
 - Brave/Chrome extension in `extension/`
 
@@ -25,13 +25,14 @@ This starts:
 Backend:          http://127.0.0.1:8000
 Web client:       http://127.0.0.1:5173
 Extension files:  http://127.0.0.1:5174
+Embedding API:    http://127.0.0.1:8081
 ```
 
 On first run, `start.ps1` creates `.env` from `.env.example`. Add `YOUTUBE_API_KEY` there before importing videos.
 
 ## Current Milestone
 
-The project is in Java rewrite milestone 4:
+The project is in Java rewrite milestone 5:
 
 - Java/Spring Boot backend skeleton
 - PostgreSQL Docker service
@@ -43,11 +44,15 @@ The project is in Java rewrite milestone 4:
 - Lucene text indexing/search at `/api/search/text`
 - Java-managed frame extraction with `yt-dlp` and `ffmpeg`
 - frame serving endpoint at `/api/frames/{frameId}`
+- CLIP image embedding service in `embedding-service/`
+- pgvector frame similarity search at `/api/search/image`
 - existing web client and extension still served by Docker
 
-Image embedding/search and hybrid search are the next milestones.
+Hybrid search is the next milestone.
 
 Transcript import is best-effort through YouTube timed text endpoints. Some videos do not expose transcripts.
+
+The first Docker build/start for image search is large because it installs PyTorch and downloads the CLIP model. Docker stores model cache in the `embedding-cache` volume.
 
 ## Extension
 

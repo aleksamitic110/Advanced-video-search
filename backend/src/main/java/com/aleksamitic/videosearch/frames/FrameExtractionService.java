@@ -1,6 +1,7 @@
 package com.aleksamitic.videosearch.frames;
 
 import com.aleksamitic.videosearch.config.RuntimeConfigService;
+import com.aleksamitic.videosearch.embedding.ImageEmbeddingClient;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -15,10 +16,16 @@ import java.util.stream.Stream;
 public class FrameExtractionService {
     private final RuntimeConfigService runtimeConfigService;
     private final JdbcTemplate jdbcTemplate;
+    private final ImageEmbeddingClient imageEmbeddingClient;
 
-    public FrameExtractionService(RuntimeConfigService runtimeConfigService, JdbcTemplate jdbcTemplate) {
+    public FrameExtractionService(
+            RuntimeConfigService runtimeConfigService,
+            JdbcTemplate jdbcTemplate,
+            ImageEmbeddingClient imageEmbeddingClient
+    ) {
         this.runtimeConfigService = runtimeConfigService;
         this.jdbcTemplate = jdbcTemplate;
+        this.imageEmbeddingClient = imageEmbeddingClient;
     }
 
     public int extractFrames(String videoId, String url) {
@@ -41,14 +48,16 @@ public class FrameExtractionService {
         int count = 0;
         for (Path frame : frames) {
             int timestamp = count * runtimeConfigService.frameIntervalSeconds();
+            String embedding = imageEmbeddingClient.toPgVector(imageEmbeddingClient.embedImage(frame));
             jdbcTemplate.update(
                     """
-                    INSERT INTO frames(video_id, timestamp_seconds, frame_path)
-                    VALUES (?, ?, ?)
+                    INSERT INTO frames(video_id, timestamp_seconds, frame_path, embedding)
+                    VALUES (?, ?, ?, ?::vector)
                     """,
                     videoId,
                     timestamp,
-                    frame.toString()
+                    frame.toString(),
+                    embedding
             );
             count++;
         }
