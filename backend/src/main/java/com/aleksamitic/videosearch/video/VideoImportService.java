@@ -1,6 +1,7 @@
 package com.aleksamitic.videosearch.video;
 
 import com.aleksamitic.videosearch.config.RuntimeConfigService;
+import com.aleksamitic.videosearch.frames.FrameExtractionService;
 import com.aleksamitic.videosearch.search.LuceneTextSearchService;
 import com.aleksamitic.videosearch.search.TextDocument;
 import com.aleksamitic.videosearch.util.YouTubeUrls;
@@ -20,17 +21,20 @@ public class VideoImportService {
     private final RuntimeConfigService runtimeConfigService;
     private final YouTubeClient youTubeClient;
     private final LuceneTextSearchService luceneTextSearchService;
+    private final FrameExtractionService frameExtractionService;
 
     public VideoImportService(
             JdbcTemplate jdbcTemplate,
             RuntimeConfigService runtimeConfigService,
             YouTubeClient youTubeClient,
-            LuceneTextSearchService luceneTextSearchService
+            LuceneTextSearchService luceneTextSearchService,
+            FrameExtractionService frameExtractionService
     ) {
         this.jdbcTemplate = jdbcTemplate;
         this.runtimeConfigService = runtimeConfigService;
         this.youTubeClient = youTubeClient;
         this.luceneTextSearchService = luceneTextSearchService;
+        this.frameExtractionService = frameExtractionService;
     }
 
     public List<ImportResult> importUrls(List<String> urls) {
@@ -71,6 +75,11 @@ public class VideoImportService {
         }
 
         luceneTextSearchService.replaceVideoDocuments(videoId, textDocuments);
+        int frameCount = 0;
+        if (runtimeConfigService.enableYtdlp()) {
+            updateStatus(videoId, "extracting_frames");
+            frameCount = frameExtractionService.extractFrames(videoId, url);
+        }
         jdbcTemplate.update(
                 """
                 UPDATE videos
@@ -84,6 +93,7 @@ public class VideoImportService {
                     comment_count = ?,
                     transcript_count = ?,
                     text_doc_count = ?,
+                    frame_count = ?,
                     updated_at = CURRENT_TIMESTAMP
                 WHERE video_id = ?
                 """,
@@ -95,6 +105,7 @@ public class VideoImportService {
                 comments.size(),
                 transcriptChunks.size(),
                 textDocuments.size(),
+                frameCount,
                 videoId
         );
     }
@@ -144,6 +155,14 @@ public class VideoImportService {
                 videoId,
                 url,
                 error == null ? "" : error
+        );
+    }
+
+    private void updateStatus(String videoId, String status) {
+        jdbcTemplate.update(
+                "UPDATE videos SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE video_id = ?",
+                status,
+                videoId
         );
     }
 

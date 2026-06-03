@@ -1,5 +1,6 @@
 package com.aleksamitic.videosearch.api;
 
+import com.aleksamitic.videosearch.frames.FrameExtractionService;
 import com.aleksamitic.videosearch.search.LuceneTextSearchService;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -17,10 +18,16 @@ import java.util.Map;
 public class VideoController {
     private final JdbcTemplate jdbcTemplate;
     private final LuceneTextSearchService luceneTextSearchService;
+    private final FrameExtractionService frameExtractionService;
 
-    public VideoController(JdbcTemplate jdbcTemplate, LuceneTextSearchService luceneTextSearchService) {
+    public VideoController(
+            JdbcTemplate jdbcTemplate,
+            LuceneTextSearchService luceneTextSearchService,
+            FrameExtractionService frameExtractionService
+    ) {
         this.jdbcTemplate = jdbcTemplate;
         this.luceneTextSearchService = luceneTextSearchService;
+        this.frameExtractionService = frameExtractionService;
     }
 
     @GetMapping("/api/videos")
@@ -61,6 +68,7 @@ public class VideoController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Video not found");
         }
         luceneTextSearchService.deleteVideo(videoId);
+        frameExtractionService.deleteVideoMedia(videoId);
         return Map.of("deleted", true, "video_id", videoId);
     }
 }

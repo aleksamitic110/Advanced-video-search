@@ -49,8 +49,8 @@ AGENTS.md
 
 1. Java backend skeleton + PostgreSQL + Docker health check. Done in commit `c6ae9bb`.
 2. PostgreSQL video history/config API. Done in commit `487081b`.
-3. YouTube import + Lucene text indexing/search. Done.
-4. Frame extraction with yt-dlp/ffmpeg.
+3. YouTube import + Lucene text indexing/search. Done in commit `fcb00a3`.
+4. Frame extraction with yt-dlp/ffmpeg. Done.
 5. Separate embedding service + image search with pgvector.
 6. Hybrid search.
 
