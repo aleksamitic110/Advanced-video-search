@@ -1,0 +1,16 @@
+server:
+  port: 8000
+
+spring:
+  application:
+    name: video-search-backend
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/videosearch}
+    username: ${SPRING_DATASOURCE_USERNAME:videosearch}
+    password: ${SPRING_DATASOURCE_PASSWORD:videosearch}
+
+app:
+  data-dir: ${APP_DATA_DIR:/app/data}
+  youtube-api-key: ${YOUTUBE_API_KEY:}
+  frame-interval-seconds: ${FRAME_INTERVAL_SECONDS:8}
+  embedding-service-url: ${EMBEDDING_SERVICE_URL:http://embedding-service:8081}

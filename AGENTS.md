@@ -1,122 +1,64 @@
 # Agent Handoff
 
-## Project Goal
+## Goal
 
-This project is a Brave/Chrome extension plus local FastAPI backend for a faculty Information Retrieval project. It indexes pasted YouTube links and supports:
+This is a faculty Information Retrieval project for indexing YouTube videos and searching them from both:
 
-- BM25 text search over title, description, comments, and transcript chunks
-- image/frame similarity search over extracted video frames
-- hybrid text + image search
-- direct YouTube timestamp links
-- a standalone web client at `client/` in addition to the browser extension
-- Docker Compose startup for backend, web client, and static extension files
+- `client/` standalone web client
+- `extension/` Brave/Chrome extension
 
-The project lives in:
+The project is being rewritten from Python to Java. Do not restore the old Python backend.
 
-```text
-YT video search extension/
-```
+## Accepted Architecture
+
+- Java Spring Boot backend in `backend/`
+- PostgreSQL in Docker for persistence
+- Apache Lucene in the Java backend for text indexing/search
+- separate image embedding service later, not DJL inside Java
+- one startup script: `start.ps1`
+- Docker Compose is the supported runtime path
 
 ## Current Structure
 
 ```text
 backend/
-  app/
-    main.py                 FastAPI routes
-    config.py               local settings and data/tool paths
-    database.py             SQLite helpers
-    schema.sql              DB schema
-    ingestion/
-      pipeline.py           YouTube import, yt-dlp download, ffmpeg frame extraction
-      youtube_client.py     YouTube Data API comments/metadata and transcript fallback
-    indexing/
-      text_index.py         BM25 implementation and result formatting
-      vector_index.py       lightweight image descriptor and cosine search
-    search/
-      service.py            text/image/hybrid orchestration
-  scripts/
-    setup_tools.ps1         downloads yt-dlp.exe and FFmpeg into backend/tools
-    start_backend.ps1       creates venv, installs deps, starts uvicorn
-  requirements.txt
+  pom.xml
+  Dockerfile
+  src/main/java/com/aleksamitic/videosearch/
+    VideoSearchApplication.java
+    api/
+    config/
+  src/main/resources/application.yml
 client/
-  index.html                standalone browser web client
-  app.js                    API calls and UI behavior
-  styles.css                web UI styling
-  Dockerfile                Nginx static hosting
+  index.html
+  app.js
+  styles.css
+  Dockerfile
 extension/
-  manifest.json             Manifest V3 extension
-  popup.*                   import/search UI
-  options.*                 backend URL, API key, ytdlp/ffmpeg settings
-  Dockerfile                Nginx static hosting for extension files
-docker-compose.yml          backend/client/extension-static services
-start.ps1                   Docker Compose startup for Windows
-start.sh                    Docker Compose startup for bash environments
-Plan.md                     original implementation plan
-README.md                   setup and usage
+  manifest.json
+  popup.*
+  options.*
+  Dockerfile
+docker-compose.yml
+start.ps1
+README.md
+AGENTS.md
 ```
 
-Ignored local runtime folders:
+## Milestones
 
-```text
-backend/.venv/
-backend/data/
-backend/tools/
-```
+1. Java backend skeleton + PostgreSQL + Docker health check.
+2. PostgreSQL video history/config API.
+3. YouTube import + Lucene text indexing/search.
+4. Frame extraction with yt-dlp/ffmpeg.
+5. Separate embedding service + image search with pgvector.
+6. Hybrid search.
 
-Do not commit API keys, downloaded videos, extracted frames, SQLite data, virtualenvs, or FFmpeg binaries.
+Push after each stable milestone.
 
-## What Works
+## Important Rules
 
-- Backend starts at `http://127.0.0.1:8000`.
-- Docker Compose starts backend at `8000`, web client at `5173`, and extension static files at `5174`.
-- YouTube API key is saved once through extension options or `POST /api/config`.
-- Web client can also save backend config and perform all current search flows.
-- `yt-dlp.exe` and FFmpeg can be installed into `backend/tools` with `backend/scripts/setup_tools.ps1`.
-- Frame extraction works when `enable_ytdlp=true` and tools are available.
-- Delete video from extension history is implemented with `DELETE /api/videos/{video_id}`.
-- Comment search results are more readable: full-ish comments, highlighted terms, source labels, and show-more toggle.
-
-## Important Behavior
-
-- YouTube Data API key is required for reliable title/description/comments.
-- Transcripts are best-effort via `youtube-transcript-api`; many videos have no accessible transcript.
-- Frame extraction requires downloading the video with yt-dlp. Some videos may fail due to YouTube restrictions, age checks, or bot checks.
-- Current image search uses a lightweight RGB histogram/grid descriptor, not CLIP. This is acceptable as a functional fallback but should be upgraded for stronger neural-search grading.
-- Extension Docker service only serves extension files. Real Brave/Chrome usage still requires loading `extension/` unpacked in the browser.
-
-## Suggested Next Work
-
-- Add CLIP embeddings for image/text-to-frame search, ideally via `sentence-transformers` or OpenCLIP.
-- Add clearer error display in the extension for failed imports.
-- Add progress/status updates for long imports instead of synchronous waiting.
-- Add pagination or grouping for comment results.
-- Add export/import of indexed video lists for demonstrations.
-- Add automated API tests for import, text search, delete, and image search.
-
-## Run Commands
-
-Docker setup on a new laptop:
-
-```powershell
-.\start.ps1
-```
-
-Manual backend setup:
-
-```powershell
-cd backend
-.\scripts\setup_tools.ps1
-.\scripts\start_backend.ps1
-```
-
-Load extension:
-
-```text
-brave://extensions -> Developer mode -> Load unpacked -> extension/
-```
-
-Backend health check:
-
-```powershell
-Invoke-RestMethod http://127.0.0.1:8000/api/health
-```
+- Keep frontend and extension API responses compatible where practical.
+- Do not reintroduce Python virtualenvs or manual backend tool scripts.
+- Runtime data, local `.env`, videos, frames, Lucene indexes, and build output must not be committed.
+- The Java package is `com.aleksamitic.videosearch`.

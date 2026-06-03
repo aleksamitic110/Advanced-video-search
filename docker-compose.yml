@@ -1,18 +1,39 @@
 services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: yt-video-search-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-videosearch}
+      POSTGRES_USER: ${POSTGRES_USER:-videosearch}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-videosearch}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-videosearch} -d ${POSTGRES_DB:-videosearch}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   backend:
     build:
       context: ./backend
     container_name: yt-video-search-backend
     environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-videosearch}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-videosearch}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-videosearch}
       YOUTUBE_API_KEY: ${YOUTUBE_API_KEY:-}
-      DATA_DIR: /app/data
-      ENABLE_YTDLP: ${ENABLE_YTDLP:-true}
+      APP_DATA_DIR: /app/data
       FRAME_INTERVAL_SECONDS: ${FRAME_INTERVAL_SECONDS:-8}
-      BACKEND_CORS_ORIGINS: "*"
+      EMBEDDING_SERVICE_URL: http://embedding-service:8081
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     volumes:
       - backend-data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
 
   client:
@@ -35,3 +56,4 @@ services:
 
 volumes:
   backend-data:
+  postgres-data:

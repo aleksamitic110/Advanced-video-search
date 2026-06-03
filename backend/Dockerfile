@@ -1,22 +1,21 @@
-FROM python:3.12-slim
+FROM maven:3.9-eclipse-temurin-21 AS build
+WORKDIR /workspace
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV DATA_DIR=/app/data
-ENV ENABLE_YTDLP=true
-ENV FRAME_INTERVAL_SECONDS=8
+COPY pom.xml .
+RUN mvn -q -DskipTests dependency:go-offline
 
+COPY src ./src
+RUN mvn -q -DskipTests package
+
+FROM eclipse-temurin:21-jre
 WORKDIR /app
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ffmpeg ca-certificates \
+    && apt-get install -y --no-install-recommends ffmpeg ca-certificates curl python3 python3-pip \
+    && pip3 install --break-system-packages --no-cache-dir yt-dlp \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY app ./app
-
+COPY --from=build /workspace/target/videosearch-0.1.0.jar app.jar
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

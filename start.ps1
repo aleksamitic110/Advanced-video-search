@@ -5,7 +5,7 @@ Set-Location $ProjectRoot
 
 if (-not (Test-Path ".env")) {
     Copy-Item ".env.example" ".env"
-    Write-Host "Created .env from .env.example. Add YOUTUBE_API_KEY there or save it from the web client/options page."
+    Write-Host "Created .env from .env.example. Add YOUTUBE_API_KEY there before importing videos."
 }
 
 Write-Host "Building and starting Docker services..."

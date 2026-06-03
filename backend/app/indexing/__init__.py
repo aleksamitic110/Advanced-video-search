@@ -1,1 +1,0 @@
-"""Indexing and retrieval implementations."""

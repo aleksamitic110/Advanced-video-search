@@ -1,17 +1,19 @@
-# YT Video Search Extension
+# YT Video Search
 
-Brave/Chrome extension and local FastAPI backend for multimodal YouTube video search.
+Faculty Information Retrieval project for searching indexed YouTube videos from a web client and Brave/Chrome extension.
 
-It indexes pasted YouTube links and supports:
+The backend is being rewritten as a Java/Spring Boot service. The target architecture is:
 
-- BM25 text search over titles, descriptions, comments, and transcripts
-- image/frame similarity search with timestamps
-- hybrid text + image search
-- direct links that open YouTube at the matched timestamp
+- Spring Boot backend for REST API and orchestration
+- PostgreSQL in Docker for video history, config, frame metadata, and later pgvector
+- Apache Lucene in the Java backend for text indexing/search
+- separate embedding service later for CLIP/OpenCLIP image embeddings
+- static web client in `client/`
+- Brave/Chrome extension in `extension/`
 
-## Docker Quick Start On A New Laptop
+## Start
 
-Clone the repo, then run:
+Run from the project root:
 
 ```powershell
 .\start.ps1
@@ -25,101 +27,32 @@ Web client:       http://127.0.0.1:5173
 Extension files:  http://127.0.0.1:5174
 ```
 
-The backend Docker image installs Python dependencies and FFmpeg. It uses the Python `yt-dlp` package from `requirements.txt`, so you do not need to install `yt-dlp` or FFmpeg manually for Docker.
+On first run, `start.ps1` creates `.env` from `.env.example`. Add `YOUTUBE_API_KEY` there before importing videos.
 
-Optional: copy `.env.example` to `.env` and set `YOUTUBE_API_KEY` before starting Docker. You can also save the API key from the web client or extension options page.
+## Current Milestone
 
-Docker stores backend data and saved runtime config in its own `backend-data` volume. If you previously saved a YouTube API key while running the backend manually, save it again after starting Docker or put it in `.env`.
+The project is in Java rewrite milestone 1:
 
-## Manual Backend Quick Start
+- Java/Spring Boot backend skeleton
+- PostgreSQL Docker service
+- backend health endpoint at `/api/health`
+- existing web client and extension still served by Docker
 
-Use this if you do not want Docker:
+Text indexing, YouTube import, frame extraction, and image search are the next milestones.
 
-```powershell
-cd backend
-.\scripts\setup_tools.ps1
-.\scripts\start_backend.ps1
-```
+## Extension
 
-Backend runs at:
-
-```text
-http://127.0.0.1:8000
-```
-
-## Web Client
-
-When Docker is running, open:
+For real extension usage, load it unpacked:
 
 ```text
-http://127.0.0.1:5173
+brave://extensions -> Developer mode -> Load unpacked -> extension/
 ```
 
-The web client supports importing videos, setting the API key, text/image/hybrid search, viewing indexed videos, and deleting indexed videos.
-
-## Browser Extension
-
-Open Brave or Chrome:
-
-```text
-brave://extensions
-```
-
-or:
-
-```text
-chrome://extensions
-```
-
-Enable Developer Mode, choose **Load unpacked**, and select the `extension/` folder.
-
-Docker also serves the extension files at `http://127.0.0.1:5174`, but browser extensions still need to be loaded from the local `extension/` folder in Developer Mode.
-
-## Configuration
-
-The web client and extension options page let you set:
-
-- backend URL, default `http://127.0.0.1:8000`
-- YouTube API key
-- frame interval in seconds
-- whether local video download/frame extraction is enabled
-
-The YouTube API key is saved in the backend SQLite config. You enter it once unless you delete `backend/data/`.
-
-## Local Tools
-
-The repo does not commit `yt-dlp.exe`, FFmpeg, downloaded videos, extracted frames, or the SQLite database.
-
-Run this to download tools into the expected local paths:
-
-```powershell
-cd backend
-.\scripts\setup_tools.ps1
-```
-
-Expected generated paths:
-
-```text
-backend/tools/yt-dlp.exe
-backend/tools/ffmpeg/bin/ffmpeg.exe
-backend/tools/ffmpeg/bin/ffprobe.exe
-backend/tools/ffmpeg/bin/ffplay.exe
-```
-
-These paths are ignored by git because FFmpeg binaries are too large for normal GitHub pushes.
-
-Docker does not use these Windows executables. Docker installs Linux FFmpeg inside the backend image.
-
-## Important Demo Notes
-
-Metadata and comments require a YouTube Data API key. Transcripts are best-effort and depend on whether a video has available captions. Frame extraction requires `yt-dlp` and `ffmpeg`, and is disabled unless explicitly enabled.
-
-The current local image embedding is lightweight so the demo works on normal laptops. The backend isolates embedding logic in `app/indexing/vector_index.py`, where CLIP can replace the fallback descriptor.
+Docker serves extension files at `http://127.0.0.1:5174` only for static inspection. Browsers still require loading the local `extension/` folder.
 
 ## Useful Checks
 
 ```powershell
+docker compose ps
 Invoke-RestMethod http://127.0.0.1:8000/api/health
-.\tools\yt-dlp.exe --version
-.\tools\ffmpeg\bin\ffmpeg.exe -version
 ```

@@ -2,6 +2,9 @@
 backend/.venv
 backend/data
 backend/tools
+backend/target
+embedding-service/.venv
+embedding-service/__pycache__
 **/__pycache__
 *.pyc
 .env
