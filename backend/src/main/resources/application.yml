@@ -8,6 +8,9 @@ spring:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/videosearch}
     username: ${SPRING_DATASOURCE_USERNAME:videosearch}
     password: ${SPRING_DATASOURCE_PASSWORD:videosearch}
+  sql:
+    init:
+      mode: always
 
 app:
   data-dir: ${APP_DATA_DIR:/app/data}

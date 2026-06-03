@@ -47,8 +47,8 @@ AGENTS.md
 
 ## Milestones
 
-1. Java backend skeleton + PostgreSQL + Docker health check.
-2. PostgreSQL video history/config API.
+1. Java backend skeleton + PostgreSQL + Docker health check. Done in commit `c6ae9bb`.
+2. PostgreSQL video history/config API. Done.
 3. YouTube import + Lucene text indexing/search.
 4. Frame extraction with yt-dlp/ffmpeg.
 5. Separate embedding service + image search with pgvector.
