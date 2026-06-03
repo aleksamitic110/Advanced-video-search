@@ -31,7 +31,7 @@ On first run, `start.ps1` creates `.env` from `.env.example`. Add `YOUTUBE_API_K
 
 ## Current Milestone
 
-The project is in Java rewrite milestone 2:
+The project is in Java rewrite milestone 3:
 
 - Java/Spring Boot backend skeleton
 - PostgreSQL Docker service
@@ -39,9 +39,13 @@ The project is in Java rewrite milestone 2:
 - database-backed config endpoint at `/api/config`
 - video history endpoint at `/api/videos`
 - delete endpoint at `/api/videos/{videoId}`
+- YouTube metadata/comment import at `/api/videos/import`
+- Lucene text indexing/search at `/api/search/text`
 - existing web client and extension still served by Docker
 
-YouTube import, Lucene text indexing/search, frame extraction, and image search are the next milestones.
+Frame extraction, image search, and hybrid search are the next milestones.
+
+Transcript import is best-effort through YouTube timed text endpoints. Some videos do not expose transcripts.
 
 ## Extension
 
