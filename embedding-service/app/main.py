@@ -4,6 +4,7 @@ from io import BytesIO
 import numpy as np
 from fastapi import FastAPI, File, UploadFile
 from PIL import Image
+from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer
 
 
@@ -11,6 +12,10 @@ MODEL_NAME = os.getenv("EMBEDDING_MODEL", "clip-ViT-B-32")
 
 app = FastAPI(title="Video Search Embedding Service", version="0.1.0")
 model: SentenceTransformer | None = None
+
+
+class TextEmbeddingRequest(BaseModel):
+    text: str
 
 
 def get_model() -> SentenceTransformer:
@@ -30,6 +35,17 @@ async def embed_image(image: UploadFile = File(...)) -> dict:
     content = await image.read()
     pil_image = Image.open(BytesIO(content)).convert("RGB")
     embedding = get_model().encode([pil_image], normalize_embeddings=True)[0]
+    vector = np.asarray(embedding, dtype=np.float32).tolist()
+    return {
+        "embedding": vector,
+        "dimensions": len(vector),
+        "model": MODEL_NAME,
+    }
+
+
+@app.post("/api/embed/text")
+def embed_text(request: TextEmbeddingRequest) -> dict:
+    embedding = get_model().encode([request.text], normalize_embeddings=True)[0]
     vector = np.asarray(embedding, dtype=np.float32).tolist()
     return {
         "embedding": vector,

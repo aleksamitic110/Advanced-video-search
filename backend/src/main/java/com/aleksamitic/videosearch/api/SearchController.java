@@ -1,8 +1,10 @@
 package com.aleksamitic.videosearch.api;
 
 import com.aleksamitic.videosearch.search.ImageSearchService;
+import com.aleksamitic.videosearch.search.ImageSearchResult;
 import com.aleksamitic.videosearch.search.LuceneTextSearchService;
 import com.aleksamitic.videosearch.search.SearchResult;
+import com.aleksamitic.videosearch.search.VisualSemanticSearchService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,10 +18,16 @@ import java.util.Map;
 public class SearchController {
     private final LuceneTextSearchService luceneTextSearchService;
     private final ImageSearchService imageSearchService;
+    private final VisualSemanticSearchService visualSemanticSearchService;
 
-    public SearchController(LuceneTextSearchService luceneTextSearchService, ImageSearchService imageSearchService) {
+    public SearchController(
+            LuceneTextSearchService luceneTextSearchService,
+            ImageSearchService imageSearchService,
+            VisualSemanticSearchService visualSemanticSearchService
+    ) {
         this.luceneTextSearchService = luceneTextSearchService;
         this.imageSearchService = imageSearchService;
+        this.visualSemanticSearchService = visualSemanticSearchService;
     }
 
     @PostMapping("/api/search/text")
@@ -40,9 +48,24 @@ public class SearchController {
         return Map.of("results", imageSearchService.search(image.getBytes(), image.getOriginalFilename(), limit));
     }
 
+    @PostMapping("/api/search/visual-semantic")
+    public Map<String, Object> visualSemanticSearch(@RequestBody VisualSemanticSearchRequest request) {
+        List<ImageSearchResult> results = visualSemanticSearchService.search(
+                request.query(),
+                request.limit() == null ? 10 : request.limit()
+        );
+        return Map.of("results", results);
+    }
+
     public record TextSearchRequest(
             String query,
             List<String> fields,
+            Integer limit
+    ) {
+    }
+
+    public record VisualSemanticSearchRequest(
+            String query,
             Integer limit
     ) {
     }

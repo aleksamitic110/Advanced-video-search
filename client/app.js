@@ -30,6 +30,7 @@ function bindActions() {
   document.getElementById("importVideos").addEventListener("click", importVideos);
   document.getElementById("textSearch").addEventListener("click", textSearch);
   document.getElementById("imageSearch").addEventListener("click", imageSearch);
+  document.getElementById("semanticSearch").addEventListener("click", semanticSearch);
   document.getElementById("hybridSearch").addEventListener("click", hybridSearch);
   document.getElementById("refreshVideos").addEventListener("click", refreshVideos);
   document.getElementById("videoList").addEventListener("click", deleteVideo);
@@ -170,6 +171,21 @@ async function imageSearch() {
   }
 }
 
+async function semanticSearch() {
+  const query = document.getElementById("semanticQuery").value.trim();
+  if (!query) {
+    setStatus("Enter a visual semantic query.", true);
+    return;
+  }
+  try {
+    const data = await apiPostJson("/api/search/visual-semantic", { query, limit: 20 });
+    renderResults(data.results || []);
+    setStatus(`Visual semantic search returned ${(data.results || []).length} results.`);
+  } catch (error) {
+    setStatus(error.message, true);
+  }
+}
+
 async function hybridSearch() {
   const query = document.getElementById("hybridQuery").value.trim();
   const file = document.getElementById("hybridImage").files[0];
@@ -266,6 +282,9 @@ function formatSource(result) {
   }
   if (result.source_type === "metadata") {
     return "title";
+  }
+  if (result.source_type === "visual_semantic") {
+    return "visual semantic";
   }
   return result.source_type || "match";
 }

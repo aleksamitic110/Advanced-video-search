@@ -20,6 +20,7 @@
         <button class="tab active" data-tab="import" type="button">Videos</button>
         <button class="tab" data-tab="text" type="button">Text</button>
         <button class="tab" data-tab="image" type="button">Image</button>
+        <button class="tab" data-tab="semantic" type="button">Visual</button>
         <button class="tab" data-tab="hybrid" type="button">Hybrid</button>
       </nav>
 
@@ -54,6 +55,14 @@
           <span>Choose image query</span>
         </label>
         <button id="imageSearch" class="primary" type="button">Search frames</button>
+      </section>
+
+      <section class="panel" id="tab-semantic">
+        <label class="field">
+          <span>Visual semantic query</span>
+          <input id="semanticQuery" type="search" placeholder="person writing, car driving, lecture slide">
+        </label>
+        <button id="semanticSearch" class="primary" type="button">Search events</button>
       </section>
 
       <section class="panel" id="tab-hybrid">

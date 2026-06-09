@@ -32,7 +32,7 @@ On first run, `start.ps1` creates `.env` from `.env.example`. Add `YOUTUBE_API_K
 
 ## Current Milestone
 
-The project is in Java rewrite milestone 5:
+The project is in Java rewrite milestone 7:
 
 - Java/Spring Boot backend skeleton
 - PostgreSQL Docker service
@@ -46,13 +46,14 @@ The project is in Java rewrite milestone 5:
 - frame serving endpoint at `/api/frames/{frameId}`
 - CLIP image embedding service in `embedding-service/`
 - pgvector frame similarity search at `/api/search/image`
+- CLIP text-to-frame visual semantic search at `/api/search/visual-semantic`
 - existing web client and extension still served by Docker
 
-Hybrid search is the next milestone.
+Hybrid search is still not implemented in the backend.
 
 Transcript import is best-effort through YouTube timed text endpoints. Some videos do not expose transcripts.
 
-The first Docker build/start for image search is large because it installs PyTorch and downloads the CLIP model. Docker stores model cache in the `embedding-cache` volume.
+The first Docker build/start for visual search is large because it installs PyTorch and downloads the CLIP model. Docker stores model cache in the `embedding-cache` volume.
 
 ## Extension
 
